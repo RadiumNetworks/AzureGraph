@@ -14,12 +14,10 @@ var blobServiceClient = new BlobServiceClient(new Uri($"{blobServiceUri}?{sasTok
 var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 await containerClient.CreateIfNotExistsAsync();
 
-// Graph subscription notification endpoint
+// Listen to posts to /api/notifications endpoint
 app.MapPost("/api/notifications", async (HttpContext context) =>
 {
-    // ── Validation handshake ──
-    // When creating a subscription, Graph sends a POST with ?validationToken=<token>.
-    // We must respond with the token as plain text within 10 seconds.
+    // verify content of ?validationToken=<token>.
     if (context.Request.Query.ContainsKey("validationToken"))
     {
         var validationToken = context.Request.Query["validationToken"].ToString();
@@ -72,13 +70,13 @@ app.MapPost("/api/notifications", async (HttpContext context) =>
     context.Response.StatusCode = 202;
 });
 
-// Health check
+// Selfcheck if website responds
 app.MapGet("/", () => "Graph Notification API is running.");
 
 // Append a line to today's append blob (one blob per day)
 async Task AppendToBlobAsync(BlobContainerClient container, string line)
 {
-    var blobName = $"notifications-{DateTime.UtcNow:yyyy-MM-dd}.log";
+    var blobName = $"notifications-{DateTime.UtcNow:yyyy-MM-dd_hh-mm}.log";
     var appendBlobClient = container.GetAppendBlobClient(blobName);
     await appendBlobClient.CreateIfNotExistsAsync();
 
