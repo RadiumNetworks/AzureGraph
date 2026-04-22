@@ -1,0 +1,82 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Log Analytics workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2022-10-01",
+      "name": "[concat(parameters('workspaceName'), '/AppCredentialExpiry_CL')]",
+      "properties": {
+        "totalRetentionInDays": 90,
+        "plan": "Analytics",
+        "schema": {
+          "name": "AppCredentialExpiry_CL",
+          "columns": [
+            {
+              "name": "AppDisplayName",
+              "type": "string",
+              "description": "Display name of the app registration"
+            },
+            {
+              "name": "AppId",
+              "type": "string",
+              "description": "Application (client) ID of the app registration"
+            },
+            {
+              "name": "ObjectId",
+              "type": "string",
+              "description": "Object ID of the app registration"
+            },
+            {
+              "name": "CredentialType",
+              "type": "string",
+              "description": "Type of credential: Secret or Certificate"
+            },
+            {
+              "name": "CredentialId",
+              "type": "string",
+              "description": "Key ID of the secret or certificate"
+            },
+            {
+              "name": "CredentialDisplayName",
+              "type": "string",
+              "description": "Display name of the secret or certificate"
+            },
+            {
+              "name": "ExpirationDate",
+              "type": "datetime",
+              "description": "Expiration date/time of the credential"
+            },
+            {
+              "name": "DaysUntilExpiry",
+              "type": "int",
+              "description": "Number of days until the credential expires (negative if already expired)"
+            },
+            {
+              "name": "CheckTimestamp",
+              "type": "datetime",
+              "description": "Timestamp when the check was performed"
+            },
+            {
+              "name": "TimeGenerated",
+              "type": "datetime",
+              "description": "Time the record was ingested (required for custom tables)"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
