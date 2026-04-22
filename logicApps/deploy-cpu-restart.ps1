@@ -5,7 +5,7 @@ param(
     [string]$Location = "westeurope",
 
     [Parameter(Mandatory = $true)]
-    [string]$TargetVmResourceId,
+    [string]$RoleAssignmentScope,
 
     [string]$LogicAppName = "cpu-autorestart-logicApp"
 )
@@ -56,27 +56,26 @@ Write-Host $output.properties.outputs.logicAppResourceId.value -ForegroundColor 
 Write-Host "`nManaged Identity Principal ID:" -ForegroundColor Cyan
 Write-Host $principalId -ForegroundColor White
 
-# Assign Virtual Machine Contributor role so the Logic App can restart the VM
+# Assign Virtual Machine Contributor role so the Logic App can restart any VM within scope
 Write-Host "`nAssigning 'Virtual Machine Contributor' role to the Logic App's managed identity..." -ForegroundColor Yellow
-Write-Host "Scope: $TargetVmResourceId" -ForegroundColor DarkGray
+Write-Host "Scope: $RoleAssignmentScope" -ForegroundColor DarkGray
 
 $roleResult = az role assignment create `
     --assignee-object-id $principalId `
     --assignee-principal-type ServicePrincipal `
     --role "Virtual Machine Contributor" `
-    --scope $TargetVmResourceId `
+    --scope $RoleAssignmentScope `
     2>&1
 
 if ($LASTEXITCODE -ne 0) {
     Write-Warning "Role assignment failed. You may need to assign it manually:"
-    Write-Host "  az role assignment create --assignee $principalId --role 'Virtual Machine Contributor' --scope '$TargetVmResourceId'" -ForegroundColor DarkGray
+    Write-Host "  az role assignment create --assignee-object-id $principalId --assignee-principal-type ServicePrincipal --role 'Virtual Machine Contributor' --scope '$RoleAssignmentScope'" -ForegroundColor DarkGray
 } else {
     Write-Host "Role assignment succeeded." -ForegroundColor Green
 }
 
 Write-Host "`n--- Next Steps ---" -ForegroundColor Cyan
-Write-Host "1. Create a metric alert rule in Azure Monitor:" -ForegroundColor White
-Write-Host "   - Resource:       $TargetVmResourceId" -ForegroundColor DarkGray
+Write-Host "1. Create metric alert rules in Azure Monitor for each VM (or use a single rule targeting multiple VMs):" -ForegroundColor White
 Write-Host "   - Signal:         Percentage CPU" -ForegroundColor DarkGray
 Write-Host "   - Operator:       Greater than or equal to" -ForegroundColor DarkGray
 Write-Host "   - Threshold:      100" -ForegroundColor DarkGray
@@ -85,3 +84,5 @@ Write-Host "   - Window size:    5 minutes" -ForegroundColor DarkGray
 Write-Host "   - Frequency:      1 minute" -ForegroundColor DarkGray
 Write-Host "2. Create an Action Group that calls this Logic App's callback URL." -ForegroundColor White
 Write-Host "3. Ensure the alert uses the Common Alert Schema." -ForegroundColor White
+Write-Host "`nThe Logic App extracts the VM resource ID from the alert payload automatically." -ForegroundColor Yellow
+Write-Host "Any VM within the role assignment scope ($RoleAssignmentScope) can be restarted." -ForegroundColor Yellow

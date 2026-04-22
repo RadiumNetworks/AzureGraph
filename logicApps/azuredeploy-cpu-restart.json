@@ -15,20 +15,6 @@
       "metadata": {
         "description": "Azure region for the Logic App"
       }
-    },
-    "targetVmResourceGroup": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Optional: restrict restarts to VMs in this resource group. Leave empty to allow any VM targeted by the alert."
-      }
-    },
-    "notificationEmail": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Optional: email address to notify (via Office 365 connector) after a restart. Leave empty to skip email."
-      }
     }
   },
   "variables": {

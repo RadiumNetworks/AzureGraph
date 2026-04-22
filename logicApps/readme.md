@@ -31,11 +31,20 @@ Perf
 
 ```powershell
 
+# Scope to an entire subscription
 .\deploy-cpu-restart.ps1 -ResourceGroupName "monitoring" `
-    -TargetVmResourceId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/infra/providers/Microsoft.Compute/virtualMachines/DC1"
+    -RoleAssignmentScope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+# Scope to an entire resource group (any VM in it can be restarted)
+.\deploy-cpu-restart.ps1 -ResourceGroupName "monitoring" `
+    -RoleAssignmentScope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/infra"
+
+# Scope to a single VM
+.\deploy-cpu-restart.ps1 -ResourceGroupName "monitoring" `
+    -RoleAssignmentScope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/infra/providers/Microsoft.Compute/virtualMachines/DC1"
 
 // Assigning 'Virtual Machine Contributor' role to the Logic App's managed identity...
-// Scope: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/infra/providers/Microsoft.Compute/virtualMachines/DC1
+// Scope: /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/infra/providers/Microsoft.Compute/virtualMachines/DC1>
 
 
 ```
